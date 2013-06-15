@@ -83,10 +83,10 @@ print 'Fetching images...'
 for companyName in companyHTMLnameList:
 	for imgSize in BASE_IMG_SIZE:
 		imgURL = BASE_IMG_URL.format(companyName, imgSize)
-		imgFile = imgPath.join([companyName, '_', imgSize, '.jpg'])
+		imgFile = ''.join([companyName, '_', imgSize, '.jpg'])
 		try:
 			jpgfile = urllib2.urlopen(imgURL).read()
-			with open(imgFile, 'wb') as f:
+			with open(imgPath + imgFile, 'wb') as f:
 				f.write(jpgfile)
 				print 'Successfully downloaded {0}'.format(jpgfile)
 		except:
