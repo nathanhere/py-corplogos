@@ -15,6 +15,7 @@ valuationList = []
 companyInfo = {}  # Dictionary of company information which is primarily accessible by company html-friendly name
 companyInfoIndexed = []  # List of company information which is primarily accessible by index number
 maxPages = 1
+imgPath = 'images/'
 jsonPath = 'json/companyInfo.json'
 jsonIndexedPath = 'json/companyInfoIndexed.json'
 
@@ -62,8 +63,7 @@ for chunk in htmlChunk.find_all('a'):
 	companyHTMLnameList.append(name)
 
 # EXTRACT COMPANY NAMES IN PRINABLE UTF-8 FORMAT
-companyNameList = [name.get_text().strip().
-replace(';', '') for name in htmlChunk.find_all('h3')]
+companyNameList = [name.get_text().strip().replace(';', '') for name in htmlChunk.find_all('h3')]
 
 for i in xrange(companyCount):
 	# do stuff
@@ -83,11 +83,12 @@ print 'Fetching images...'
 for companyName in companyHTMLnameList:
 	for imgSize in BASE_IMG_SIZE:
 		imgURL = BASE_IMG_URL.format(companyName, imgSize)
-		imgFile = ''.join([companyName, '_', imgSize, '.jpg'])
+		imgFile = imgPath.join([companyName, '_', imgSize, '.jpg'])
 		try:
 			jpgfile = urllib2.urlopen(imgURL).read()
 			with open(imgFile, 'wb') as f:
 				f.write(jpgfile)
+				print 'Successfully downloaded {0}'.format(jpgfile)
 		except:
 			print 'Error downloading {0}'.format(imgFile)
 			pass
