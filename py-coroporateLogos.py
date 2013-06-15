@@ -21,62 +21,63 @@ jsonIndexedPath = 'json/companyInfoIndexed.json'
 
 #companyInfo = {'name': companyNameList[], 'htmlName': companyHTMLnameList[], sales': sales, 'profits': profits, 'assets': assets, 'marketValue': marketValue}
 
-# TODO: turn into a loop
-try:
-	data = urllib2.urlopen(BASE_URL.format(maxPages)).read()
-except:
-	print 'Error opening BASE_URL.Terminating Program.'
+# GET ALL COMPANY META DATA BEFORE DOWNLOADING IMAGES
+for i in xrange(1, maxPages + 1):
+	try:
+		data = urllib2.urlopen(BASE_URL.format(i)).read()
+	except:
+		print 'Error opening BASE_URL.Terminating Program.'
 
-soup = BeautifulSoup(data)
+	soup = BeautifulSoup(data)
 
-# Extracts a chunk of HTML in which company names are located
-htmlChunk = soup.find(id="listbody")
-htmlCountryList = htmlChunk.find_all('td')
-htmlValuationList = htmlChunk.find_all(class_='nowrap')
+	# Extracts a chunk of HTML in which company names are located
+	htmlChunk = soup.find(id="listbody")
+	htmlCountryList = htmlChunk.find_all('td')
+	htmlValuationList = htmlChunk.find_all(class_='nowrap')
 
-companyCount = 100 * maxPages
+	companyCount = 100 * maxPages
 
-# GET VALUATION
-j = 0
-limit = len(htmlValuationList) / 4
-for valuations in xrange(limit):
-	sales = htmlValuationList[j].get_text()
-	profits = htmlValuationList[j + 1].get_text()
-	assets = htmlValuationList[j + 2].get_text()
-	marketValuation = htmlValuationList[j + 3].get_text()
-	valuationList.append({'sales': sales, 'profits': profits, 'assets': assets, 'marketValuation': marketValuation})
-	j += 4
+	# GET VALUATION
+	j = 0
+	limit = len(htmlValuationList) / 4
+	for valuations in xrange(limit):
+		sales = htmlValuationList[j].get_text()
+		profits = htmlValuationList[j + 1].get_text()
+		assets = htmlValuationList[j + 2].get_text()
+		marketValuation = htmlValuationList[j + 3].get_text()
+		valuationList.append({'sales': sales, 'profits': profits, 'assets': assets, 'marketValuation': marketValuation})
+		j += 4
 
-# GET COUNTRY
-j = 0
-limit = len(htmlCountryList) / 7
-for i in xrange(limit):
-	country = htmlCountryList[j + 2].get_text()
-	countryList.append(country)
-	j += 7
+	# GET COUNTRY
+	j = 0
+	limit = len(htmlCountryList) / 7
+	for i in xrange(limit):
+		country = htmlCountryList[j + 2].get_text()
+		countryList.append(country)
+		j += 7
 
-# EXTRACT HTML-FRIENDLY COMPANY NAMES (WITH DASHES) FROM HTMLCHUNK
-for chunk in htmlChunk.find_all('a'):
-	companyPath = chunk.get('href')
-	endPos = companyPath.find('/', 12)
-	name = companyPath[11:endPos]
-	companyHTMLnameList.append(name)
+	# EXTRACT HTML-FRIENDLY COMPANY NAMES (WITH DASHES) FROM HTMLCHUNK
+	for chunk in htmlChunk.find_all('a'):
+		companyPath = chunk.get('href')
+		endPos = companyPath.find('/', 12)
+		name = companyPath[11:endPos]
+		companyHTMLnameList.append(name)
 
-# EXTRACT COMPANY NAMES IN PRINABLE UTF-8 FORMAT
-companyNameList = [name.get_text().strip().replace(';', '') for name in htmlChunk.find_all('h3')]
+	# EXTRACT COMPANY NAMES IN PRINABLE UTF-8 FORMAT
+	companyNameList = [name.get_text().strip().replace(';', '') for name in htmlChunk.find_all('h3')]
 
-for i in xrange(companyCount):
-	# do stuff
-	companyPayload.append(valuationList[i])
-	companyPayload[i].update({'country': countryList[i]})
-	companyPayload[i].update({'htmlName': companyHTMLnameList[i]})
-	companyPayload[i].update({'name': companyNameList[i]})
-	companyInfoIndexed.append(companyPayload[i])
-for i in xrange(companyCount):
-	companyInfo.update({companyHTMLnameList[i]: {}})
-	companyInfo[companyHTMLnameList[i]].update({'country': countryList[i]})
-	companyInfo[companyHTMLnameList[i]].update({'name': companyNameList[i]})
-	companyInfo[companyHTMLnameList[i]].update(valuationList[i])
+	for i in xrange(companyCount):
+		# do stuff
+		companyPayload.append(valuationList[i])
+		companyPayload[i].update({'country': countryList[i]})
+		companyPayload[i].update({'htmlName': companyHTMLnameList[i]})
+		companyPayload[i].update({'name': companyNameList[i]})
+		companyInfoIndexed.append(companyPayload[i])
+	for i in xrange(companyCount):
+		companyInfo.update({companyHTMLnameList[i]: {}})
+		companyInfo[companyHTMLnameList[i]].update({'country': countryList[i]})
+		companyInfo[companyHTMLnameList[i]].update({'name': companyNameList[i]})
+		companyInfo[companyHTMLnameList[i]].update(valuationList[i])
 
 # write company info to json file (pickalable (near ascii) format)
 j = json.dumps(companyInfo)
