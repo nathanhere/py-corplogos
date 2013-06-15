@@ -14,7 +14,7 @@ countryList = []
 valuationList = []
 companyInfo = {}  # Dictionary of company information which is primarily accessible by company html-friendly name
 companyInfoIndexed = []  # List of company information which is primarily accessible by index number
-maxPages = 1
+maxPages = 20
 imgPath = 'images/'
 jsonPath = 'json/companyInfo.json'
 jsonIndexedPath = 'json/companyInfoIndexed.json'
@@ -78,6 +78,15 @@ for i in xrange(companyCount):
 	companyInfo[companyHTMLnameList[i]].update({'name': companyNameList[i]})
 	companyInfo[companyHTMLnameList[i]].update(valuationList[i])
 
+# write company info to json file (pickalable (near ascii) format)
+j = json.dumps(companyInfo)
+jIndexed = json.dumps(companyInfoIndexed)
+
+with open(jsonPath, 'wb') as f:
+	f.write(j)
+with open(jsonIndexedPath, 'wb') as f:
+	f.write(jIndexed)
+
 # GET COMPANY LOGOS FROM FORBES.COM
 print 'Fetching images...'
 for companyName in companyHTMLnameList:
@@ -99,13 +108,6 @@ for companyName in companyHTMLnameList:
 # (1) within id='listbody' > tr > td.nowrap: [sales, profits, assets, Marketval]
 # (2) Option to obtain additional info: INDUSTRY, FOUNDING YEAR, CEO, WEBSITE, EMPLOYEE COUNT
 
-# write company info to json file (pickalable (near ascii) format)
-j = json.dumps(companyInfo)
-jIndexed = json.dumps(companyInfoIndexed)
 
-with open(jsonPath, 'wb') as f:
-	f.write(j)
-with open(jsonIndexedPath, 'wb') as f:
-	f.write(jIndexed)
 
 print 'Forbes 2000 Coroporate Logo collection complete.'
